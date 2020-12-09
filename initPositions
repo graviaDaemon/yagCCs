@@ -1,0 +1,92 @@
+{{ $sect := sdict 
+    "Anarch" "0" }}
+    "Camarilla" "0"
+    "Sabbat" "0" }}
+
+{{ $threePos := cslice
+    ( sdict "Place" "firstSeat" "Who" "" )
+    ( sdict "Place" "secondSeat" "Who" "" )
+    ( sdict "Place" "thirdSeat" "Who" "" ) }}
+
+{{ $clans := cslice 
+    ( sdict "Clan" "Banu Haqim" "Who" "" ) 
+    ( sdict "Clan" "Brujah" "Who" "" ) 
+    ( sdict "Clan" "Gangrel" "Who" "" ) 
+    ( sdict "Clan" "Lasombra" "Who" "" ) 
+    ( sdict "Clan" "Malkavian" "Who" "" ) 
+    ( sdict "Clan" "Nosferatu" "Who" "" ) 
+    ( sdict "Clan" "Toreador" "Who" "" ) 
+    ( sdict "Clan" "Tremere" "Who" "" ) 
+    ( sdict "Clan" "Ventrue" "Who" "" ) }}
+
+{{ $camPos := cslice 
+    ( sdict "Position" "Prince" "Status" "5" "Who" "" ) 
+    ( sdict "Position" "Seneschal" "Status" "4" "Who" "" )
+    ( sdict "Position" "Primogen" "Status" "4" "What" $clans )
+    ( sdict "Position" "Clan Whip" "Status" "3" "What" $clans )
+    ( sdict "Position" "Sherrif" "Status" "3" "Who" "" )
+    ( sdict "Position" "Hound" "Status" "3" "What" $threePos )
+    ( sdict "Position" "Herald" "Status" "3" "Who" "" )
+    ( sdict "Position" "Principal of Faith" "Status" "3" "Who" "" )
+    ( sdict "Position" "Keeper of Elysium" "Status" "3" "Who" "" )
+    ( sdict "Position" "Scourge" "Status" "3" "What" $threePos )
+    ( sdict "Position" "Harpies" "Status" "3" "What" $threePos )
+    ( sdict "Position" "The Shadow" "Status" "2" "Who" "" )
+    ( sdict "Position" "Tremere Regent" "Status" "4" "Who" "" ) }}
+
+{{ $aPos := cslice 
+    ( sdict "Position" "Baron" "Status" "5" "Who" "" )
+    ( sdict "Position" "Emissary to the Camarilla" "Status" "4" "Who" "" )
+    ( sdict "Position" "Sweeper" "Status" "3" "Who" "" )
+    ( sdict "Position" "Cameleon" "Status" "2" "What" $threePos ) }}
+
+{{ $sPos := cslice 
+    ( sdict "Position" "Archbishop" "Status" "5" "Who" "" )
+    ( sdict "Position" "Bishop" "Status" "4" "Who" "" )
+    ( sdict "Position" "Templar" "Status" "3" "Who" "" )
+    ( sdict "Position" "Ductus" "Status" "2" "Who" "" )
+    ( sdict "Position" "Packpriest" "Status" "2" "Who" "" )
+    ( sdict "Position" "True Sabbat" "Status" "1" "Who" "" )
+    ( sdict "Position" "False Sabbat" "Status" "0" "Who" "" ) }}
+
+{{ $positions := sdict 
+    "Camarilla" $camPos 
+    "Sabbat" $sPos 
+    "Anarch" $aPos }}
+
+{{- range $k,$v := $positions }}
+    {{- $msg := print "__**" $k "**__\n\n" }}
+    {{- range $index,$element := $v }}
+        {{- range $key,$val := $element }}
+            {{- if ( eq $key "Position" ) }}
+                {{- $msg = print $msg "**" $val " " }}
+            {{- else if ( eq $key "Status" ) }}
+                {{- $msg = print $msg "( " $key " " $val ")** - " }}
+            {{- else }}
+                {{- if ( eq $key "Who" ) }}
+                    {{- $msg = print $msg " \n"}}
+                {{- else }}
+                    {{- $msg = print $msg "\n"}}
+                    {{- range $ix,$el := $val }}
+                        {{- range $ky,$vl := $el }}
+                            {{- if ( eq $ky "Clan" ) }}
+                                {{- $msg = print $msg "> " $vl " - " }}
+                            {{- else if ( eq $ky "Place" ) }}
+                                {{- $msg = print $msg "> -" }}
+                            {{- else }}
+                                {{- $msg = print $msg " \n" }}
+                            {{- end -}}
+                        {{- end -}}
+                    {{- end }}
+                {{- end }}
+            {{- end -}}
+        {{- end -}}
+    {{- end }}
+    {{- $x := sendMessageRetID nil $msg }}
+    {{- $sect.Set $k $x -}}
+{{- end }}
+
+{{ deleteTrigger 1 }}
+
+{{ dbSet 0 "sect" $sect }}
+{{ dbSet 0 "positions" $positions }}
