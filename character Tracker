@@ -1,0 +1,46 @@
+{{ $argument := parseArgs 3 "Usage: `-addCharacter Clan Sect Integer`" 
+    ( carg "string" "clanName" )
+    ( carg "string" "sectName" )
+    ( carg "int" "Value" ) }}
+
+{{ $clans := sdict ( dbGet 0 "clans" ).Value }}
+{{ $sect := sdict ( dbGet 0 "sect" ).Value }}
+
+{{ $msg := print "__**" "Clans" "**__" "\n" }}
+{{ $total := 0 }}
+{{ range $k,$v := $clans }}
+    {{- if ( eq ( $argument.Get 0 ) ( toString $k ) ) }}
+        {{- $v = add $v ( $argument.Get 2 ) }}
+        {{- $clans.Set $k $v }}
+    {{- end }}
+    {{- $msg = print $msg "> " $v " " "**" "-" "**" " " ( mentionRoleName $k ) "\n" }}
+    {{- $total = add $v $total -}}
+{{- end }}
+
+{{ $msg = print $msg "\n" "__**" "Sect" "**__" "\n" }}
+
+{{ range $k,$v := $sect }}
+    {{- if ( eq ( $argument.Get 1 ) (toString $k ) ) }}
+        {{- $v = add $v ( $argument.Get 2 ) }}
+        {{- $sect.Set $k $v }}
+    {{- end }}
+    {{- if ( eq $k "Mortal" ) }}
+        {{- $total = add $v $total }}
+    {{- end }}
+    {{- if ( eq $k "Sabbat" ) }}
+        {{- $max := round ( div $total 4 ) }}
+        {{- $msg = print $msg "> " $v " " "**" "/" "**" " " $max " " "**" "-" "**" " " ( mentionRoleName $k ) "\n" }}
+    {{- else }}
+        {{- $msg = print $msg "> " $v " " "**" "-" "**" " " ( mentionRoleName $k ) "\n" }}
+    {{- end -}}
+{{- end }}
+
+{{ $msg = print $msg "\n" "__**" "Total Characters:" "**__" "\n" "> " $total }}
+
+{{ dbSet 0 "clans" $clans }}
+{{ dbSet 0 "sect" $sect }}
+
+{{ editMessage ChannelID MessageID $msg }}
+{{ $x := sendMessageRetID nil "Added Character to the Tracker" }}
+{{ deleteTrigger 0 }}
+{{ deleteMessage nil $x 5 }}
