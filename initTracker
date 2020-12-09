@@ -1,0 +1,43 @@
+{{ $clans := sdict 
+    "Kine" "0"
+    "Ghoul" "0"
+    "Gangrel" "0"
+    "Brujah" "0"
+    "Malkavian" "0"
+    "Ventrue" "0"
+    "Toreador" "0"
+    "Tremere" "0"
+    "Banu-Haqim" "0"
+    "The-Ministry" "0"
+    "Lasombra" "0"
+    "Caitiff" "0"
+    "Thin-Blooded" "0"
+    "Unassigned-Fledgling" "0"
+    "Nosferatu" "0" }}
+
+{{ dbSet 0 "clans" $clans }}
+
+{{ $sect := sdict 
+    "Camarilla" "0"
+    "Anarch" "0"
+    "Independent" "0"
+    "Autarkis" "0"
+    "Sabbat" "0" }}
+
+{{ dbSet 0 "sect" $sect }}
+
+{{ $total := 0 }}
+{{ $msg := ( print "**Clans:**\n" ) }}
+{{- range $k,$v := $clans }}
+    {{- $msg = ( print $msg "> " ( mentionRoleName $k ) " - " $v "\n" ) }}
+    {{- $total = add $total ( toInt $v ) -}}
+{{- end }}
+
+{{ $msg = ( print $msg "\n**Sect**\n" ) }}
+{{- range $k,$v := $sect }}
+    {{- $msg = ( print $msg "> " ( mentionRoleName $k ) " - " $v "\n" ) -}}
+{{- end }}
+
+{{ $msg = ( print $msg "\n**Total**\n" $total ) }}
+
+{{ sendMessage nil $msg }}
