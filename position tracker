@@ -1,0 +1,138 @@
+{{/* normalize the database structure, and then retrieve an sdict from the database. Normalize because the sdict contains cslices of sdicts */}}
+{{$globalSdict:= sdict }}
+{{- define "standardize"}}
+{{- $value:= .Get "val"}}{{$t:= printf "%T" $value}}{{$recursiveSdict:= sdict}}{{$rangeVal:= ""}}
+    {{- if (eq  $t `map[string]interface {}`)}}{{$rangeVal = sdict $value}}
+    {{- else if (eq $t `[]interface {}`)}}{{$rangeVal = cslice.AppendSlice $value}}
+    {{- else if (in (cslice `templates.SDict` `templates.Slice`) $t)}}{{$rangeVal = $value}} 
+    {{- end}}
+    {{- if (print $rangeVal)}}
+        {{- range $k,$v:= $rangeVal}}
+            {{- if in (cslice `map[string]interface {}` `[]interface {}` `templates.SDict` `templates.Slice`) (printf "%T" $v)}}
+                {{- $recursiveSdict.Set "val" $v}}{{template "standardize" $recursiveSdict}}{{$rangeVal.Set $k ($recursiveSdict.Get "res")}}
+            {{- end}}
+        {{- end}}
+    {{- else}}
+        {{- $rangeVal = $value}}
+    {{- end}}
+{{- .Set "res" $rangeVal}}
+{{- end}}
+{{/* retrieve database sdict for the message, and the messageID's */}}
+{{ $positions := sdict (dbGet 0 "positions").Value }}{{$globalSdict.Set "val" $positions}}{{template "standardize" $globalSdict}}{{$positions = $globalSdict.Get "res"}}
+{{ $messageIds := sdict ( dbGet 0 "sect" ).Value }}
+
+{{/* Usage of Command: */}}
+{{/* adding a character -> -Position {Sect} {Position} {"Character Name"} {@mention User} {Clan or seat} */}}
+{{/* removing a character -> -Position {Sect} {Position} {Clan or Seat} */}}
+{{/* Sect = Camarilla, Anarch, or Sabbat */}}
+{{/* Position is any of the positions in that sect */}}
+{{/* Character Name must be enclosed in "quote marks" */}}
+{{/* Any sect, position or clan name must be with Capital lettering. (ex: Brujah, Baron, Sabbat) */}}
+{{/* The Clan or Seat argument is optional, and should only be used when adding any of the following: [ Cameleon, Primogen, Clan Whip, Hound, Scourge, Harpies ] */}}
+{{/* Only when adding primogen or Clan Whip does one add a clan name. This clan name must be enclosed in "quote marks" if that clan name has a space in its name */}}
+{{/* On all other options given in the Clan or Seat comment, you use either firstSeat, secondSeat, or thirdSeat. Note the capital lettering in those words. They are important */}}
+
+
+{{ if ( eq ( index .CmdArgs 0 ) "Anarch" "Sabbat" "Camarilla" ) }}
+    {{/* Determine Message.ID to edit the message of */}}
+    {{ $message := 0 }}
+    {{ range $k,$v := $messageIds }}
+        {{ if ( eq $k ( index $.CmdArgs 0 ) ) }}
+            {{ $message = $v }}
+        {{ end }}
+    {{ end }}
+
+    {{/* Create the $who standard */}}
+    {{ $who := "" }}
+    {{ $user := "" }}
+    {{ $checker := "" }}
+    {{ $bols := false }}
+    
+    {{ if ( ge ( len .CmdArgs ) 4 ) }}
+        {{ if ( reFind `<@!?\d{17,19}>` ( index .CmdArgs 3 ) ) }}
+            {{ if ( gt ( len .CmdArgs ) 4 ) }}
+                {{ $checker = ( index .CmdArgs 4 ) }}
+            {{ end }}
+            {{ $bols = true }}
+            {{ $user = getMember ( index .CmdArgs 3 ) }}
+            {{ $who = print ( index .CmdArgs 2 ) " - Played by: <@" $user.User.ID ">"  }}
+        {{ end }}
+    {{ else }}
+        {{ if ( gt ( len .CmdArgs ) 2 ) }}
+            {{ $checker = ( index .CmdArgs 2 ) }}
+        {{ end }}
+    {{ end }}
+
+    {{ $msg := "" }}
+    {{ $tmp := "" }}
+    {{ $temp := "" }}
+    {{/* Range over the sdict $positions, in which each sect has its own cslice of sdicts for the positions in them. */}}
+    {{/* For example: key: "anarch" has cslice (sdict "Position" "Baron" "Status" "5" "Who" "") as one of its entries. */}}
+    {{- range $key,$val := $positions }}
+        {{- if ( eq $key ( index $.CmdArgs 0 ) ) }}
+            {{- $msg = print "__**" $key "**__\n\n" }}
+            {{- range $index,$element := $val }}
+                {{- range $k,$v := $element }}
+                    {{- if ( eq $k "Position" ) }}
+                        {{- $msg = print $msg "**" $v " " }}
+                        {{- $tmp = $v }}
+                    {{- else if ( eq $k "Status" ) }}
+                        {{- $msg = print $msg "( " $k " " $v ")** - " }}
+                    {{- else }}
+                        {{- if ( eq $k "Who" ) }}
+                            {{- if ( eq ( index $.CmdArgs 1 ) $tmp ) }}
+                                {{- $msg = print $msg "" $who "\n" }}
+                                {{- $element.Set "Who" $who }}
+                            {{- else }}
+                                {{- $msg = print $msg $v "\n"}}
+                            {{- end }}
+                        {{- else }}
+                            {{- $msg = print $msg "\n"}}
+                            {{- range $ix,$el := $v }}
+                                {{- range $ky,$vl := $el }}
+                                    {{- if ( eq $ky "Clan" ) }}
+                                        {{- $msg = print $msg "> " $vl " - " }}
+                                        {{- $temp = $vl }}
+                                    {{- else if ( eq $ky "Place" ) }}
+                                        {{- $msg = print $msg "> " }}
+                                        {{- $temp = $vl }}
+                                    {{- else }}
+                                        {{- if ( eq $tmp ( index $.CmdArgs 1 ) ) }}
+                                            {{- if ( eq $checker $temp ) }}
+                                                {{- $msg = print $msg "" $who "\n" }}
+                                                {{- $el.Set "Who" $who }}
+                                            {{- else }}
+                                                {{- $msg = print $msg $vl "\n" }}
+                                            {{- end }}
+                                        {{- else }}
+                                            {{- $msg = print $msg $vl "\n" }}
+                                        {{- end }}
+                                    {{- end -}}
+                                {{- end }}
+                                {{- $v.Set $ix $el -}}
+                            {{- end }}
+                        {{- end }}
+                    {{- end }}
+                    {{- $element.Set $k $v -}}
+                {{- end }}
+                {{- $val.Set $index $element -}}
+            {{- end -}}
+        {{- end }}
+        {{- $positions.Set $key $val }}
+        {{- $msg = print $msg "-------------------------" -}}
+    {{- end }}
+
+    {{ editMessage nil $message $msg }}
+    {{- dbSet 0 "positions" $positions }}
+
+    {{ if ( eq $bols true ) }}
+        {{ $x := sendMessageRetID nil "Added character to the tracker" }}
+        {{ deleteMessage nil $x 5 }}
+    {{ else }}
+        {{ $y := sendMessageRetID nil "Removed character from the tracker" }}
+        {{ deleteMessage nil $y 5 }}
+    {{ end }}
+{{ else }}
+    {{ $q := sendMessageRetID nil ( print "The argument you provided for sect was not found. Please check your spelling, use capital letters, and try again. Possible sects: `Camarilla, Anarch, Sabbat`. Your argument was: " ( index .CmdArgs 0 ) ) }}
+    {{ deleteMessage nil $q 30 }}
+{{ end }}
