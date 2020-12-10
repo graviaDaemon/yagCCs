@@ -1,10 +1,11 @@
 # yagCCs
 This repository is meant for all the custom commands I've been making over time. Most of which are meant for VtM play by post servers, but they can be adapted to work with whatever you need for your custom commands.  
   
-# InitPositions
+# Commands:  
+## InitPositions
 This command is to initialize the messages that the poitions command will edit. pick a channel where the messages will be tracked, and use `-initPositions`  
   
-# Position  
+## Position  
 When you want to add a character to the tracker, you do: `-Position {Sect} {Position} {"Character Name"} {@mentionUser} {Clan/Seat}`  
 When you want to remove a character from the tracker, you do `-Position {Sect} {Position} {Clan/Seat}`  
 **Sect can be:** Anarch, Sabbat or Camarilla  
@@ -29,10 +30,10 @@ Removing a character goes almost the same way
 `-Position Primogen Malkavian`  
 `-Position Anarch Cameleon firstSeat`  
   
-# InitTracker  
+## InitTracker  
 This command initializes the character tracker by clan and sect. All of the clans/sects should have their own roles to mention. run -initTracker once in the chosen channel. From now on, that message will be edited, store the messageID in addCharacter together with channelID  
   
-# addCharacter  
+## addCharacter  
 Add or remove, the command is the same.  
 `-addCharacter {Clan} {Sect} {number}`  
 {Clan} is each of the roles mentioned in the message, but **don't** mention the roles in the command. Type them out with `-` instead of spaces.  
