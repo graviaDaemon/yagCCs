@@ -1,0 +1,111 @@
+{{ $args := parseArgs 1 "Provide me with a Season please."
+ (carg "string" "season" ) }}
+{{ 
+	$description := sdict 
+		"1" "clear skies"
+		"2" "sunny"
+		"3" "Brumouos"
+		"4" "Rainy"
+		"5" "Cloudy"
+		"6" "Gloomy"
+		"7" "Clear but some Clouds"
+		"8" "Tropical" 
+}}
+
+{{ 
+	$temperature := cslice
+		( sdict "Temperature" "freezing" "Average" (randInt -7 -1) )
+		( sdict "Temperature" "cold" "Average" (randInt 0 5) )
+		( sdict "Temperature" "chilly" "Average" (randInt 5 10) )
+		( sdict "Temperature" "moderate" "Average" (randInt 10 17) )
+		( sdict "Temperature" "comfortable" "Average" (randInt 17 21) )
+		( sdict "Temperature" "warm" "Average" (randInt 21 25 ) )
+		( sdict "Temperature" "hot" "Average" (randInt 25 30 ) )
+		( sdict "Temperature" "blazing" "Average" (randInt 30 40) )
+}}
+
+{{ 
+	$wind := cslice 
+		( sdict "Type" "Calm" "Speed" 0)
+		( sdict "Type" "Light air" "Speed" (randInt 2 5) )
+		( sdict "Type" "Light breeze" "Speed" (randInt 6 11) )
+		( sdict "Type" "Gentle breeze" "Speed" (randInt 12 19) )
+		( sdict "Type" "Moderate breeze" "Speed" (randInt 20 28) )
+		( sdict "Type" "Fresh breeze" "Speed" (randInt 29 38) )
+		( sdict "Type" "Strong breeze" "Speed" (randInt 39 49) )
+		( sdict "Type" "High wind" "Speed" (randInt 50 61) )
+		( sdict "Type" "Gale" "Speed" (randInt 62 74) )
+}}
+
+{{
+	$season := sdict
+		"1" "spring"
+		"2" "summer"
+		"3" "autumn"
+		"4" "winter"
+}}
+{{ $check := "1" }}
+{{ $currentSeason := $args.Get 0 }}
+
+{{- range $k, $v := $season }}
+	{{- if ( eq $v $currentSeason ) }}
+		{{ $check = $k }}
+	{{- end }}
+{{- end }}
+
+{{ $chosenDescr := toString ( randInt 1 8 ) }}
+{{ $insertDescr := "" }}
+{{ range $k,$v := $description }}
+    {{ if ( eq $k $chosenDescr ) }}
+        {{ $insertDescr = print "Description" ": " $v }}
+    {{ end }}
+{{ end }}
+
+{{ $chosenWind := 0 }}
+{{ if ( eq $check "1" "2" ) }}
+	{{ $chosenWind = randInt 0 5 }}
+{{ else }}
+	{{ $chosenWind = randInt 4 8 }}
+{{ end }}
+{{$insertWind := ""}}
+{{- range $index,$element := $wind }}
+	{{- if ( eq $index $chosenWind ) }}
+		{{- range $k,$v := $element }}
+			{{- if ( eq $k "Type" )}}
+    			{{- $insertWind = print "Wind" ": " $v $insertWind }}
+			{{- else }}
+    			{{- $insertWind = print $insertWind " (" $v "Kph" ")" }}
+			{{- end -}}
+		{{- end }}
+	{{- end -}}
+{{- end }}
+
+{{ $chosenTemp := "" }}
+{{ if ( eq $check "1" "2" ) }}
+	{{ $chosenTemp = randInt 4 7 }}
+{{ else }}
+	{{ $chosenTemp = randInt 0 4 }}
+{{ end }}
+{{$insertTemp := ""}}
+{{- range $index,$element := $temperature }}
+	{{- if ( eq $index $chosenTemp ) }}
+		{{- range $k,$v := $element }}
+			{{- if ( eq $k "Temperature" ) }}
+				{{- $insertTemp = print $k ": " $v "\n" $insertTemp }}
+			{{- else }}
+				{{- $faren := add ( mult $v 1.8 ) 32 }}
+				{{- $insertTemp = print $insertTemp $k ": " $faren "°F(" $v "°C)\n" }}
+			{{- end -}}
+		{{- end }}
+	{{- end -}}
+{{- end }}
+
+{{ $message := cembed 
+	"title" "**Weather**" 
+	"fields" (cslice
+		(sdict "name" "\u200b" "value" $insertDescr "inline" false)
+		(sdict "name" "\u200b" "value" $insertTemp "inline" false)
+		(sdict "name" "\u200b" "value" $insertWind "inline" false) )
+}}
+{{ sendMessage ################## $message }}{{/* change ##### into the ChannelID of your announcement channel */}}
+{{ deleteTrigger 0 }}
