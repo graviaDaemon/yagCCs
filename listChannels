@@ -1,0 +1,65 @@
+{{$globalSdict:= sdict }}
+{{- define "standardize"}}
+{{- $value:= .Get "val"}}{{$t:= printf "%T" $value}}{{$recursiveSdict:= sdict}}{{$rangeVal:= ""}}
+    {{- if (eq  $t `map[string]interface {}`)}}{{$rangeVal = sdict $value}}
+    {{- else if (eq $t `[]interface {}`)}}{{$rangeVal = cslice.AppendSlice $value}}
+    {{- else if (in (cslice `templates.SDict` `templates.Slice`) $t)}}{{$rangeVal = $value}} 
+    {{- end}}
+    {{- if (print $rangeVal)}}
+        {{- range $k,$v:= $rangeVal}}
+            {{- if in (cslice `map[string]interface {}` `[]interface {}` `templates.SDict` `templates.Slice`) (printf "%T" $v)}}
+                {{- $recursiveSdict.Set "val" $v}}{{template "standardize" $recursiveSdict}}{{$rangeVal.Set $k ($recursiveSdict.Get "res")}}
+            {{- end}}
+        {{- end}}
+    {{- else}}
+        {{- $rangeVal = $value}}
+    {{- end}}
+{{- .Set "res" $rangeVal}}
+{{- end}}
+
+{{ $rpChannels := ( dbGet 0 "channels" ).Value }}{{$globalSdict.Set "val" $rpChannels}}{{template "standardize" $globalSdict}}{{$rpChannels = $globalSdict.Get "res"}}
+
+{{ $arg_1 := index .CmdArgs 0 }}
+{{ $arg_2 := "" }}
+
+{{ if eq $arg_1 "show" }}
+    {{- range $k, $v := $rpChannels }}
+        {{- sendMessage nil ( print $k " - " "<#" $v ">" ) -}}
+    {{- end }}
+{{ else }}
+
+    {{ if gt ( len .CmdArgs ) 1 }}
+        {{ $arg_2 = index .CmdArgs 1 }}
+    {{ end }}
+
+    {{ $arg_1 = index .CmdArgs 0 | getChannel }}
+    {{ with index .CmdArgs 0 | reFind `\d+` | toInt | getChannel }}
+        {{ $arg_1 =. }}
+    {{ end }}
+
+    {{ if $arg_1 }}
+        {{ if ( $rpChannels.Get $arg_1.Name ) }}
+            {{ if eq $arg_2 "delete" "del" "remove" }}
+                {{ $rpChannels.Del $arg_1.Name }}
+                {{ sendMessage nil ( print "I have removed <#" $arg_1.ID "> from the list" ) }}
+            {{ else }}
+                {{ sendMessage nil ( print "<#" $arg_1.ID "> already exists in my list. Try another?" ) }}
+            {{ end }}
+        {{ else }}
+            {{ $rpChannels.Set $arg_1.Name $arg_1.ID }}
+            {{ sendMessage nil ( print "I have added <#" $arg_1.ID "> to the list!")}}
+        {{ end }}
+    {{ else }}
+        {{ $arg_1 = index .CmdArgs 0 }}
+        {{- range $k,$v := $rpChannels }}
+            {{- if ( eq $k $arg_1 ) }}
+                {{- if eq $arg_2 "delete" "del" "remove" }}
+                    {{- $rpChannels.Del $arg_1 }}
+                    {{ sendMessage nil ( print "I have removed <#" $arg_1 "> from the list" ) }}
+                {{- end }}
+            {{- end }}
+        {{- end }}
+    {{ end }}
+
+    {{ dbSet 0 "channels" $rpChannels }}
+{{ end }}
