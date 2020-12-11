@@ -1,5 +1,6 @@
 # yagCCs
 This repository is meant for all the custom commands I've been making over time. Most of which are meant for VtM play by post servers, but they can be adapted to work with whatever you need for your custom commands.  
+The bot these commands are used with is yagpdb, a moderation bot.
   
 # Commands:  
 ## InitPositions
