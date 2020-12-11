@@ -46,7 +46,9 @@ examples:
 add: `-addCharacter Malkavian Camarilla 1`  
 remove: `-addCharacter Malkavian Camarilla -1`  
   
-## Create damages  
+## Reset Commands  
+  
+### Create damages (Not required, but adds damage numbers to reset message)  
   
 Any channel you wish to use this command in. It's a simple but required command to have your reset message display properly.  
 If people breach, or do other masquerade damages, or if the SI has gotten attention of your city in some way. This command allows you to track the damage done.  
@@ -60,14 +62,14 @@ Before the first use, use this snippet of code instead first, so that the db ite
 {{ dbSet 0 "damages" $damages }}  
 ```  
   
-## Exp messager
+### Exp messager 
   
 This is a relatively easy command, it starts with a trigger which I have set to `-exp` and the arguments follow in groups of 2, repeated untill the message limit has been reached.  
 "Character Name" within quotation marks, and an exp value as second argument.   
 So as example:  
 `-exp "Character One" 2 "Character Two" 4 "Character Three" 3 "Character Four" 1 .....` etc.  
   
-## list Channels  
+### list Channels (Required for Reset command - per IC Channel to display) 
   
 `chnlList` this command adds channels to the list that the "reset" command uses to send a reset message in all the IC channels.  
 This one can be used in the following ways:  
@@ -75,6 +77,12 @@ This one can be used in the following ways:
 `-chnlList #somechannel` this adds that channel to the list. Make sure it's a mentioned channel  
 `-chnlList #somechannel {del | delete | remove }` any one of the three words on the end will do, this deletes the channel from the list.  
   
-## Weather Randomiser  
+### Weather Randomiser  (Not required, but adds damage numbers to reset message)
   
-`-weather {season}` give any season as argument to this command, and it will randomise a weather pattern given by some hardcoded weather phenomena. Wind with speed, temperature, clouds or sun. the works. Can use some editing, but it works like a charm for now.
+`-weather {season}` give any season as argument to this command, and it will randomise a weather pattern given by some hardcoded weather phenomena. Wind with speed, temperature, clouds or sun. the works. Can use some editing, but it works like a charm for now.  
+  
+### Reset Command  
+  
+This command will message in all channels from the "List Channels" command, and in the announcement channel that Reset has happened.  
+In the Announcement channel it will display a general message with damage numbers ("Damage command") and custom additional messaging. In the commented parts it the code itself describes what parts of the message you can or can't edit.
+it's usage is simple. `-Reset` in whatever channel you like. After using this command, I personally use the weather command too. But I'm thinking for later updates that I make this command run the weather command for you.
