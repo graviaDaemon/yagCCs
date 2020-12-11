@@ -1,0 +1,32 @@
+{{ $approved := ##### }} {{/* change this into an Emoji.ID of a custom approved emoji, or a discord default emoji if you prefer that. It must differ from the next two */}}
+{{ $mortal := "☑️" }} {{/* I've used :ballot_box_with_check: as emoji for mortal characters */}}
+{{ $kindred := "✅" }} {{/* I've used :white_check_mark: as emoji for kindred characters */}}
+{{ $first := "" }}
+{{ $second := 0 }}
+{{ $user := .Message.Author.ID }}
+{{ $all := 0 }}
+{{ $msg := "" }}
+{{ $channel := 749419347201622138 }}{{/* the channel you want to @mention the user in after the $approved emoji is given. */}}
+
+{{- range .ReactionMessage.Reactions }}
+    {{- $all = add .Count $all }}
+    {{- if ( eq $all 1 ) }}
+        {{- $first = .Emoji.Name }}
+    {{- else if ( eq $all 2 ) }}
+        {{- $second = .Emoji.ID }}
+        {{- if ( eq $second $approved ) }}
+            {{- if ( eq $first $mortal $kindred ) }}
+                {{- if and ( not ( targetHasRoleName $user "Kine" ) ) ( eq $first $mortal ) }} {{/* change the word "kine" into any role you want to give if the first emoji was $mortal */}}
+                    {{- giveRoleName $user "Kine" }} {{/* change the word "kine" into any role you want to give if the first emoji was $mortal */}}
+                {{- else if and ( not ( targetHasRoleName $user "Kindred" ) ) ( eq $first $kindred ) }} {{/* change the word "Kindred" into the role name you want to give the user when the first emoji was $kindred */}}
+                    {{- giveRoleName $user "Kindred" }} {{/* change the word "Kindred" into the role name you want to give the user when the first emoji was $kindred */}}
+                {{- end }}
+                {{ $msg = print "<@" $user ">" "You have been approved, please get your self-roles in" "<#" "##############" ">" "and post a nice profile in" "<#" "########################" ">" }} {{/* change the first #### into the channelID your self-roles are stored in, and the second #### with the channelID of your profile channel */}}
+            {{- else }}
+                {{- $first }} was not the right emoji.
+            {{- end }}
+        {{- end }}
+    {{- end -}}
+{{- end }}
+
+{{ sendMessage $channel $msg }}
