@@ -75,3 +75,6 @@ This one can be used in the following ways:
 `-chnlList #somechannel` this adds that channel to the list. Make sure it's a mentioned channel  
 `-chnlList #somechannel {del | delete | remove }` any one of the three words on the end will do, this deletes the channel from the list.  
   
+## Weather Randomiser  
+  
+`-weather {season}` give any season as argument to this command, and it will randomise a weather pattern given by some hardcoded weather phenomena. Wind with speed, temperature, clouds or sun. the works. Can use some editing, but it works like a charm for now.
