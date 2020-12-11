@@ -66,3 +66,12 @@ This is a relatively easy command, it starts with a trigger which I have set to 
 "Character Name" within quotation marks, and an exp value as second argument.   
 So as example:  
 `-exp "Character One" 2 "Character Two" 4 "Character Three" 3 "Character Four" 1 .....` etc.  
+  
+## list Channels  
+  
+`chnlList` this command adds channels to the list that the "reset" command uses to send a reset message in all the IC channels.  
+This one can be used in the following ways:  
+`-chnlList show` this makes the bot show you **all** the channels it currently has listed for those messages  
+`-chnlList #somechannel` this adds that channel to the list. Make sure it's a mentioned channel  
+`-chnlList #somechannel {del | delete | remove }` any one of the three words on the end will do, this deletes the channel from the list.  
+  
