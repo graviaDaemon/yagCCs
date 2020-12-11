@@ -87,3 +87,7 @@ This one can be used in the following ways:
 This command will message in all channels from the "List Channels" command, and in the announcement channel that Reset has happened.  
 In the Announcement channel it will display a general message with damage numbers ("Damage command") and custom additional messaging. In the commented parts it the code itself describes what parts of the message you can or can't edit.
 it's usage is simple. `-Reset` in whatever channel you like. After using this command, I personally use the weather command too. But I'm thinking for later updates that I make this command run the weather command for you.
+  
+## Emoji triggering command  
+  
+This custom command is made for when you're checking submitted character sheets. Make sure the first emoji you give, when approved, is either $mortal or $kindred. These variables are declared at the top in the command's code. Then if approved a second time, make sure that the second emoji you give the sheet is $approved, which is also declared at the top of the code. Once the second emoji is given, the bot will run and check if it was $mortal or $kindred. Then ping that user, and give them either the kindred or mortal role. 
