@@ -59,3 +59,10 @@ Before the first use, use this snippet of code instead first, so that the db ite
 {{ $damages := sdict "Masquerade Damage" 0 "SI Attention" 0 }}  
 {{ dbSet 0 "damages" $damages }}  
 ```  
+  
+## Exp messager
+  
+This is a relatively easy command, it starts with a trigger which I have set to `-exp` and the arguments follow in groups of 2, repeated untill the message limit has been reached.  
+"Character Name" within quotation marks, and an exp value as second argument.   
+So as example:  
+`-exp "Character One" 2 "Character Two" 4 "Character Three" 3 "Character Four" 1 .....` etc.  
