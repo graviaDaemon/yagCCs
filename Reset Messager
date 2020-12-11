@@ -9,7 +9,8 @@
 			(sdict "name" "__**Failed either?**__" "value" "Your hunger goes up by 1" "inline" false) 
 			(sdict "name" "__**Willpower**__" "value" "regain willpower equal to either Composure or Resolve, whichever is higher") )
 		"content" "Go and Wake Up!" 
-}}{{/*  /* change ### into bot-roll channelID */}}
+}}{{/* change ### into bot-roll channelID */}}
+{{/* In the message, you can change the values for "name" and "value". DO NOT change name or value itself, but the content of the parts after, for they are keys not values. */}} 
 
 {{ range $key, $value := $rpChannels }}
     {{ sendMessage $value $message }}
@@ -29,21 +30,21 @@
 
 {{ execCC 75 nil 0 "autumn" }}
 
-{{ $announce := joinStr
-"" "__**" "Server Reset Time" "**__" "\n"
-"- " "You returned to your haven or you stayed at the friends haven. This is where you wake up in the first post of the new week." "\n"
-"- " "Make a Rouse Check, " "if it fails, your hunger goes up by 1" "\n"
-"- " "You regain spent willpower equal to either Composure OR Resolve, " "whichever is highest" "\n"
-"- " "If you gained stains, " "roll for remorse." " (pg. 239 Core Rulebook)" "\n"
+{{ $announce := print
+"__**Server Reset Time**__\n"
+"- You returned to your haven or you stayed at the friends haven. This is where you wake up in the first post of the new week.\n"
+"- Make a Rouse Check, " "if it fails, your hunger goes up by 1\n"
+"- You regain spent willpower equal to either Composure OR Resolve, whichever is highest.\n"
+"- If you gained stains, roll for remorse. (pg. 239 Core Rulebook)\n"
 "\n"
-"**" "Masquerade damage:" "**" " " $masq "\n"
-"**" "Second Inquisition attention:" "**" " " $siAtt "\n"
+"**Masquerade damage:** " $masq "\n"
+"**Second Inquisition attention:** " $siAtt "\n"
 "\n"
-"**" "Don't forget to add what you are rolling in" "**" " " "<#" ################ ">" "\n"
-"**Warning:** If you did a dumbdumb, and that got you killed, then I suggest thinking of your actions next time :stuck_out_tongue: dumb actions can and most likely will result in death." "\n"
+"**Don't forget to add what you are rolling in:** " "<#" ################ ">\n"
+"**Warning:** If you did a dumbdumb, and that got you killed, then I suggest thinking of your actions next time :stuck_out_tongue: dumb actions can and most likely will result in death.\n"
 mentionEveryone
 }}{{/*  /* change ### into bot-roll channelID */}}
-
+{{/* change whatever part of this message how you like. Masquerade Damage and SI Attention are variables derrived from the damage command */}}
 {{ sendMessageNoEscape ############ $announce }}{{/*  /* change ### into bot-roll channelID */}}
 
 {{ deleteTrigger 1 }}
