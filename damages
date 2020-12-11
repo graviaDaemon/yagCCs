@@ -1,0 +1,21 @@
+{{ $args := parseArgs 2 "You have to add Masquerade Damage or SI Attention and then a number."
+(carg "string" "type") 
+(carg "int" "damage") }}
+
+{{ $damages := sdict ( dbGet 0 "damages" ).Value }}
+
+{{ range $k,$v := $damages }}
+    {{- if and ( eq ( $args.Get 0 ) "Masquerade Damage" ) ( eq $k "Masquerade Damage" ) }}
+        {{- $masq := add $v ( $args.Get 1 ) }}
+        {{- $damages.Set $k $masq }}
+    {{- else if and ( eq ( $args.Get 0 ) "SI Attention" ) ( eq $k "SI Attention" ) }}
+        {{- $attention := add $v ( $args.Get 1 ) }}
+        {{- $damages.Set $k $attention }}
+    {{- end -}}
+{{- end }}
+
+{{ dbSet 0 "damages" $damages }}
+
+{{ deleteTrigger 0 }}
+{{ $x := sendMessageRetID nil "it has been done!" }}
+{{ deleteMessage nil $x 3 }}
