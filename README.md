@@ -46,4 +46,16 @@ examples:
 add: `-addCharacter Malkavian Camarilla 1`  
 remove: `-addCharacter Malkavian Camarilla -1`  
   
-Have fun tinkering!  
+## Create damages  
+  
+Any channel you wish to use this command in. It's a simple but required command to have your reset message display properly.  
+If people breach, or do other masquerade damages, or if the SI has gotten attention of your city in some way. This command allows you to track the damage done.  
+`dmg "Damage Type" #` is the command.   
+`#` can be positive or negative numbers, to increase or reduce the damage.  
+**"Damage Type"** is simply one of the two **"Masquerade Damage"** or **"SI Attention"** (make sure to use the capital letters where I just wrote them in the examples)  
+  
+Before the first use, use this snippet of code instead first, so that the db items are set.  
+```go
+{{ $damages := sdict "Masquerade Damage" 0 "SI Attention" 0 }}  
+{{ dbSet 0 "damages" $damages }}  
+```  
