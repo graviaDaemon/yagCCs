@@ -1,0 +1,29 @@
+{{ $len := len .CmdArgs }}
+
+{{ if and (ne $len 0) (eq (toInt (mod $len 2)) 0) }}
+	{{ $state := 0 }}
+	{{ $cName := "" }}
+	{{ $exp := 0 }}
+	{{ $msg := print "__**" "EXP" "**__" "\n" }}
+
+	{{ range .CmdArgs }}
+
+		{{- if eq $state 0 }} 
+			{{ $cName = . }}
+			{{ $msg = print $msg "> " $cName }}
+		{{- else }} 
+			{{ $exp = . }}
+			{{ $msg = print $msg " - " $exp "\n"}}
+		{{- end }}
+
+		{{- /* Switch state */}}{{ $state = sub 1 $state -}}
+	{{ end }}
+
+	{{ $msg = print $msg mentionEveryone }}
+	{{ sendMessageNoEscape nil $msg }}
+
+{{ else }}
+	Invalid args.
+{{ end }}
+
+{{ deleteTrigger 0 }}
