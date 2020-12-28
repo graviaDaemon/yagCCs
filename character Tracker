@@ -40,7 +40,7 @@
 {{ dbSet 0 "clans" $clans }}
 {{ dbSet 0 "sect" $sect }}
 
-{{ editMessage ChannelID MessageID $msg }}
+{{ editMessage .Channel.ID .Message.ID $msg }}
 {{ $x := sendMessageRetID nil "Added Character to the Tracker" }}
 {{ deleteTrigger 0 }}
 {{ deleteMessage nil $x 5 }}
